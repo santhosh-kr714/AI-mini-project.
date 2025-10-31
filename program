@@ -1,0 +1,98 @@
+import math
+PLAYER = 'X'
+AI = 'O'
+EMPTY = '-'
+def print_board(board):
+ print("\n-------------")
+ for row in board:
+ print(f"| {row[0]} | {row[1]} | {row[2]} |")
+ print("-------------")
+ print()
+def is_moves_left(board):
+ for row in board:
+ if EMPTY in row:
+ return True
+ return False
+def evaluate(b):
+ for r in range(3):
+ if b[r][0] == b[r][1] == b[r][2]:
+ if b[r][0] == AI: return 10
+ elif b[r][0] == PLAYER: return -10
+ for c in range(3):
+ if b[0][c] == b[1][c] == b[2][c]:
+ if b[0][c] == AI: return 10
+ elif b[0][c] == PLAYER: return -10
+ if b[0][0] == b[1][1] == b[2][2]:
+ if b[0][0] == AI: return 10
+ elif b[0][0] == PLAYER: return -10
+ if b[0][2] == b[1][1] == b[2][0]:
+ if b[0][2] == AI: return 10
+ elif b[0][2] == PLAYER: return -10
+ return 0
+def minimax(board, is_max):
+ score = evaluate(board)
+ if score in [10, -10]: return score
+ if not is_moves_left(board): return 0
+ if is_max:
+ best = -math.inf
+ for r in range(3):
+ for c in range(3):
+ if board[r][c] == EMPTY:
+ board[r][c] = AI
+ best = max(best, minimax(board,
+False))
+ board[r][c] = EMPTY
+ return best
+ else:
+ best = math.inf
+ for r in range(3):
+ for c in range(3):
+ if board[r][c] == EMPTY:
+ board[r][c] = PLAYER
+best = min(best, minimax(board,
+True))
+ board[r][c] = EMPTY
+ return best
+def find_best_move(board):
+ best_val = -math.inf
+ best_move = (-1, -1)
+ for r in range(3):
+ for c in range(3):
+ if board[r][c] == EMPTY:
+ board[r][c] = AI
+ move_val = minimax(board, False)
+ board[r][c] = EMPTY
+ if move_val > best_val:
+ best_move = (r, c)
+best_val = move_val
+ return best_move
+def play_game():
+ board = [[EMPTY]*3 for _ in range(3)]
+ print("AI Lab Mini Project: Tic-Tac-Toe AI Bot")
+ print("You are 'X' and the AI is 'O'.")
+ print_board(board)
+ while True:
+ move = input("Enter your move (row col): ")
+ r, c = map(int, move.split())
+ if board[r][c] == EMPTY:
+ board[r][c] = PLAYER
+ print_board(board)
+ if evaluate(board) == -10:
+ print("You won!")
+ break
+ if not is_moves_left(board):
+ print("Draw!")
+ break
+ ai_r, ai_c = find_best_move(board)
+ board[ai_r][ai_c] = AI
+ print(f"AI played at {ai_r}, {ai_c}")
+ print_board(board)
+ if evaluate(board) == 10:
+ print("AI won!")
+ break
+ if not is_moves_left(board):
+ print("Draw!")
+ break
+if __name__ == "__main__":
+ play_game()
+ print("Game Over.")
